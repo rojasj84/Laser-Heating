@@ -405,8 +405,11 @@ class DataFileHandling(tk.Frame):
             self.selected_folder_to_save_tfit.insert(tk.END, self.open_folder_path)        
 
 class InitiateActonTfit(tk.Frame):
-    def __init__(self, x_position, y_position):
-        tk.Frame.__init__(self)
+    #def __init__(self, x_position, y_position):
+    #    tk.Frame.__init__(self)
+    def __init__(self, container, x_position, y_position):
+        #tk.Frame.__init__(self, container)
+        super().__init__(container)
 
         #Frame visual configuration
         self.configure(width=1280,height=1000)

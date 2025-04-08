@@ -18,16 +18,19 @@ if __name__ == "__main__":
     # Begin code with window code
     window = tk.Tk()
     window.title("EPL Laser Heating Control")
-    window.geometry("1800x1010")
+    window.geometry("1280x1010")
     #window.configure(bg="Medium Gray")
+
+    laser_control_window = tk.Toplevel()
+    laser_control_window.geometry("505x1010")
 
     ico = Image.open("images/laser-icon.png")
     photo = ImageTk.PhotoImage(ico)
     window.wm_iconphoto(False, photo)
     
-    ActonPixis = InitiateActonTfit(0,0)
-    PiezoMotors = InitiatePiezoMotorControls(1280,0)
-    left_laser_control = LaserCommunication("192.168.1.100", 1290,570)
-    right_laser_control = LaserCommunication("192.168.0.100", 1540,570)
+    ActonPixis = InitiateActonTfit(window, 0,0)
+    PiezoMotors = InitiatePiezoMotorControls(laser_control_window,0,0)
+    left_laser_control = LaserCommunication(laser_control_window,"192.168.1.100", 20,565)
+    right_laser_control = LaserCommunication(laser_control_window,"192.168.0.100", 260,565)
 
     window.mainloop()

@@ -353,8 +353,11 @@ class RemoteControlWindow(tk.Toplevel):
                 laser2_PiezoMotors.change_jog_speed_local("+")                        
        
 class InitiatePiezoMotorControls(tk.Frame):
-    def __init__(self, x_position, y_position):
-        tk.Frame.__init__(self)
+    #def __init__(self, x_position, y_position):
+        #tk.Frame.__init__(self)
+    def __init__(self, container, x_position, y_position):
+        #tk.Frame.__init__(self, container)
+        super().__init__(container)
 
         #Visual configuration
         #self.geometry('1280x1000')
@@ -379,7 +382,7 @@ class InitiatePiezoMotorControls(tk.Frame):
         laser2_PiezoMotors = AgilisControlPanel(self, laser2_xy_channel, laser_focus_channel, 2, 260, 10, "right")
 
         RemoteControlButton = tk.Button(self, text="Remote Control", command=initiate_remote_control)
-        RemoteControlButton.place(x=150,y=530, height = 30, width = 200)        
+        RemoteControlButton.place(x=150,y=520, height = 30, width = 200)        
              
        
 if __name__ == "__main__":
