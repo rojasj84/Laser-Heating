@@ -89,7 +89,7 @@ def readdenk2(port):
 
 # Function to flip one relay of the Denkovi
 # Accepts the port of the Denkovi and the integer of the relay
-def flipbit(port, bit):
+def flip_single_relay_status(port, bit):
     relays = readdenk(port)
 
     # print(relays[bit-1])
