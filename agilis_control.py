@@ -3,9 +3,9 @@ import time
 # Library with functions to talk with the agilis piezo motion controller
 
 #Set comport for agilis
-COMPORT = 'COM6'
+COMPORT = 'COM10'
 
-def pz_travel_PR(chan,axis,direction,steps):
+def pz_travel_PR(comport,chan,axis,direction,steps):
 
     str_intruct = str(axis) + "PR"
 
@@ -14,7 +14,7 @@ def pz_travel_PR(chan,axis,direction,steps):
     else:
         str_intruct = str_intruct + str(steps)
 
-    ser = serial.Serial(COMPORT,
+    ser = serial.Serial(comport,
                         921600,
                         bytesize=serial.EIGHTBITS,
                         parity=serial.PARITY_NONE,
@@ -24,12 +24,12 @@ def pz_travel_PR(chan,axis,direction,steps):
     ser.write( str_intruct.encode('ascii') +  b'\r\n')
     ser.close()
 
-def pz_travel_JA(chan,axis,speed):
+def pz_travel_JA(comport,chan,axis,speed):
 
     str_intruct = str(axis) + "JA"
     str_intruct = str_intruct + str(speed)
     #print(str_intruct)
-    ser = serial.Serial(COMPORT,
+    ser = serial.Serial(comport,
                         921600,
                         bytesize=serial.EIGHTBITS,
                         parity=serial.PARITY_NONE,
@@ -43,11 +43,12 @@ def pz_travel_JA(chan,axis,speed):
     ser.write( str_intruct.encode('ascii') +  b'\r\n')
 
     ser.close() # Tells Axis to Jog Move at a certain speed
-def pz_travel_ST(chan,axis):
+
+def pz_travel_ST(comport,chan,axis):
 
     str_intruct = str(axis) + "ST"
     #print(str_intruct)
-    ser = serial.Serial(COMPORT,
+    ser = serial.Serial(comport,
                         921600,
                         bytesize=serial.EIGHTBITS,
                         parity=serial.PARITY_NONE,
@@ -61,6 +62,7 @@ def pz_travel_ST(chan,axis):
     ser.write( str_intruct.encode('ascii') +  b'\r\n')
 
     ser.close() # Tells Axis to Stop
+
 def pz_RemoteMode():
 
     str_intruct = "MR"

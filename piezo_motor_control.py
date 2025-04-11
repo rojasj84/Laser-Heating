@@ -85,7 +85,7 @@ class AgilisControlPanel(tk.Frame):
     jog_speed_local = 1
     bt_scale = 8
 
-    def __init__(self, container, xy_channel, focus_channel, focus_axis, x_location, y_location, side):
+    def __init__(self, container, xy_channel, focus_channel, focus_axis, x_location, y_location, side, agilis_comport):
         super().__init__(container)
      
         frame_width = 225
@@ -111,21 +111,21 @@ class AgilisControlPanel(tk.Frame):
         # Left and Right have opposite directions for focus and defocus
         if self.side == "left":
             focus_label = tk.Label(self, text = "  FOCUS     DEFOCUS", bg=win_color, font=('Agency FB', 10, 'bold')).place(relx=0.5, rely=0.7,anchor="center")
-            self.laser_left_focus = self.AxisControl(self, "FOCUS LEFT", "images/left_focus.png", self.bt_scale, frame_width/3, 310, focus_channel, focus_axis, -1, 3, 2)
-            self.laser_right_focus = self.AxisControl(self, "FOCUS RIGHT", "images/right_focus.png", self.bt_scale, frame_width*2/3, 310, focus_channel, focus_axis, 1, 3, 2)
+            self.laser_left_focus = self.AxisControl(self, "FOCUS LEFT", "images/left_focus.png", self.bt_scale, frame_width/3, 310, focus_channel, focus_axis, -1, 3, 2, agilis_comport)
+            self.laser_right_focus = self.AxisControl(self, "FOCUS RIGHT", "images/right_focus.png", self.bt_scale, frame_width*2/3, 310, focus_channel, focus_axis, 1, 3, 2, agilis_comport)
         else:
             focus_label = tk.Label(self, text = "DEFOCUS     FOCUS  ", bg=win_color, font=('Agency FB', 10, 'bold')).place(relx=0.5, rely=0.7,anchor="center")
-            self.laser_left_focus = self.AxisControl(self, "FOCUS LEFT", "images/left_focus.png", self.bt_scale, frame_width/3, 310, focus_channel, focus_axis, 1, 3, 2)
-            self.laser_right_focus = self.AxisControl(self, "FOCUS RIGHT", "images/right_focus.png", self.bt_scale, frame_width*2/3, 310, focus_channel, focus_axis, -1, 3, 2)
+            self.laser_left_focus = self.AxisControl(self, "FOCUS LEFT", "images/left_focus.png", self.bt_scale, frame_width/3, 310, focus_channel, focus_axis, 1, 3, 2, agilis_comport)
+            self.laser_right_focus = self.AxisControl(self, "FOCUS RIGHT", "images/right_focus.png", self.bt_scale, frame_width*2/3, 310, focus_channel, focus_axis, -1, 3, 2, agilis_comport)
         
         #focus_label = tk.Label(self, text = "DEFOCUS", bg=win_color, font=('Agency FB', 14, 'bold')).place(relx=0.7, rely=0.7,anchor="center")
         focus_label = tk.Label(self, text = "SPEED", bg=win_color, font=('Agency FB', 14, 'bold')).place(relx=0.5, rely=0.9,anchor="center")
 
         #Populate control buttons for agilis axis
-        self.Laser_Jog_Up = self.AxisControl(self, "UP", "images/up_jog.png", self.bt_scale, frame_width/2, 85, xy_channel, 2, 1, 2, 1)
-        self.Laser_Jog_Down = self.AxisControl(self, "DOWN", "images/down_jog.png", self.bt_scale, frame_width/2, 205, xy_channel, 2, -1, 2, 1)
-        self.Laser_Jog_Right = self.AxisControl(self, "RIGHT", "images/right_jog.png", self.bt_scale, frame_width*3/4, 145, xy_channel, 1, -1, 2, 1)
-        self.Laser_Jog_Left = self.AxisControl(self, "LEFT", "images/left_jog.png", self.bt_scale, frame_width/4, 145, xy_channel, 1, 1, 2, 1)
+        self.Laser_Jog_Up = self.AxisControl(self, "UP", "images/up_jog.png", self.bt_scale, frame_width/2, 85, xy_channel, 2, 1, 2, 1, agilis_comport)
+        self.Laser_Jog_Down = self.AxisControl(self, "DOWN", "images/down_jog.png", self.bt_scale, frame_width/2, 205, xy_channel, 2, -1, 2, 1, agilis_comport)
+        self.Laser_Jog_Right = self.AxisControl(self, "RIGHT", "images/right_jog.png", self.bt_scale, frame_width*3/4, 145, xy_channel, 1, -1, 2, 1, agilis_comport)
+        self.Laser_Jog_Left = self.AxisControl(self, "LEFT", "images/left_jog.png", self.bt_scale, frame_width/4, 145, xy_channel, 1, 1, 2, 1, agilis_comport)
 
         
 
@@ -167,7 +167,7 @@ class AgilisControlPanel(tk.Frame):
         print(self.jog_speed_local)     
 
     class AxisControl(tk.Frame):
-        def __init__(self, container, button_text, image_file_location, button_scale, x_location, y_location, channel, axis, direction, max_speed, min_speed):
+        def __init__(self, container, button_text, image_file_location, button_scale, x_location, y_location, channel, axis, direction, max_speed, min_speed, agilis_comport):
             super().__init__(container)
 
             button_width = 62
@@ -180,6 +180,7 @@ class AgilisControlPanel(tk.Frame):
             self.direction = direction
             self.max_speed = max_speed
             self.min_speed = min_speed
+            self.agilis_comport = agilis_comport
 
             #Button information
             self.axis_button = tk.Button(self, text = button_text, bg = win_color, relief=tk.FLAT, image=self.button_image)
@@ -206,11 +207,11 @@ class AgilisControlPanel(tk.Frame):
             print(self.max_speed)
             
             print(channel,axis,speed)
-            pz_travel_JA(channel,axis,speed)
-            print(channel,axis)
+            pz_travel_JA(self.agilis_comport,channel,axis,speed)
+            print(self.agilis_comport, channel,axis)
 
         def Stop_Piezo_Travel(self,channel,axis):
-            pz_travel_ST(channel,axis)
+            pz_travel_ST(self.agilis_comport, channel,axis)
 
     class JogSpeedButton(tk.Frame):
         def __init__(self, container, button_text, image_file_location, button_scale, x_location, y_location, speed_change):
@@ -355,7 +356,7 @@ class RemoteControlWindow(tk.Toplevel):
 class InitiatePiezoMotorControls(tk.Frame):
     #def __init__(self, x_position, y_position):
         #tk.Frame.__init__(self)
-    def __init__(self, container, x_position, y_position):
+    def __init__(self, container, x_position, y_position, agilis_comport):
         #tk.Frame.__init__(self, container)
         super().__init__(container)
 
@@ -370,6 +371,7 @@ class InitiatePiezoMotorControls(tk.Frame):
         self.x_position = x_position
         self.y_position = y_position
         self.place(x = self.x_position, y = self.y_position)
+        self.agilis_comport = agilis_comport
 
         #Setting some values for laser piezo motor communication
         #Each channel controls 2 Axis for X and Y
@@ -378,8 +380,8 @@ class InitiatePiezoMotorControls(tk.Frame):
         laser_focus_channel = 3 #Both focus motors are in the same channel, laser 1 on 1 and laser 2 on 2
 
         #Calling classes for the control buttons of laser 1 and 2
-        laser1_PiezoMotors = AgilisControlPanel(self, laser1_xy_channel, laser_focus_channel, 1, 20, 10, "left")
-        laser2_PiezoMotors = AgilisControlPanel(self, laser2_xy_channel, laser_focus_channel, 2, 260, 10, "right")
+        self.laser1_PiezoMotors = AgilisControlPanel(self, laser1_xy_channel, laser_focus_channel, 1, 20, 10, "left", self.agilis_comport)
+        self.laser2_PiezoMotors = AgilisControlPanel(self, laser2_xy_channel, laser_focus_channel, 2, 260, 10, "right", self.agilis_comport)
 
         RemoteControlButton = tk.Button(self, text="Remote Control", command=initiate_remote_control)
         RemoteControlButton.place(x=150,y=520, height = 30, width = 200)        
