@@ -1,16 +1,20 @@
 import tkinter as tk
 import numpy as np 
 import sys
+import time
+import threading as Thread
+
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
+
 from tkinter import filedialog
-
-
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import TemperatureFit.TemperatureFitting as tfit
 import TemperatureFit.SpeFile as spe
 
-default_calubration_temperature = 2500
+default_calubration_temperature = 2255
 
 class LogoDisplay(tk.Frame):
     def __init__(self,container,x_position, y_position):
@@ -338,19 +342,23 @@ class PlotGraphs(tk.Frame):
 
         self.left_temperature_label = tk.Label(self, text=right_temperature_string, font=('Helvetica', 15), background="White", anchor="w")# highlightbackground="black", highlightthickness=1)
         self.left_temperature_label.place(x=530, y= 30, width = 200, height = 30)
-      
+
 class DataFileHandling(tk.Frame):
     def __init__(self, container, temperature_plots, calibration_files, x_position, y_position):
         #tk.Frame.__init__(self, container)
         super().__init__(container)
         
         #Frame visual configuration
-        self.configure(width=320,height=320,background="White", highlightbackground="black", highlightthickness=1)
+        self.configure(width=320,height=370,background="White", highlightbackground="black", highlightthickness=1)
         
         #Frame position information
         self.place(x = x_position, y = y_position)
         self.plots = temperature_plots
         self.calibration_files = calibration_files
+
+        #Check button variable
+        self.automatic_fitting_button_state = tk.IntVar()
+        self.auto_fitting_folder_path = tk.StringVar()
 
         #Frame buttons and labels
         self.select_lightfield_spectra = tk.Button(self, text="Select Single .spe for T-fit", font=('Helvetica', 10), command=lambda: self.data_file_open_dialog(1))
@@ -362,11 +370,65 @@ class DataFileHandling(tk.Frame):
         self.select_folder_to_save_tfit.place(x = 10, y = 110, width=300, height = 30)
         self.selected_folder_to_save_tfit = tk.Text(self, font=('Helvetica', 10), highlightbackground="black", highlightthickness=0, background="Light Gray")
         self.selected_folder_to_save_tfit.place(x = 10, y = 150, width=300, height = 50)
+        self.select_automatic_fit = tk.Checkbutton(self, text="Automatic Fitting", bg = "White", font=('Helvetica', 10), variable = self.automatic_fitting_button_state, command=lambda: self.automatic_file_fitting())
+        self.select_automatic_fit.place(x = 10, y = 200, width= 150, height= 30)
 
-        self.enter_output_filename = tk.Label(self, text="Enter output filename", font=('Helvetica', 10))
-        self.enter_output_filename.place(x = 10, y = 210, width=300, height = 30)
+        self.enter_output_filename = tk.Label(self, text="Enter output filename", font=('Helvetica', 10), highlightbackground="black", highlightthickness=1)
+        self.enter_output_filename.place(x = 10, y = 250, width=300, height = 30)
         self.entered_output_filename = tk.Text(self, font=('Helvetica', 10), highlightbackground="black", highlightthickness=0, background="Light Gray")
-        self.entered_output_filename.place(x = 10, y = 240, width=300, height = 30)
+        self.entered_output_filename.place(x = 10, y = 290, width=300, height = 30)
+        self.select_folder_to_save_tfit = tk.Button(self, text="Save Temperature Fit", font=('Helvetica', 10), command=lambda: self.data_file_open_dialog(2))
+        self.select_folder_to_save_tfit.place(x = 10, y = 325, width=300, height = 30)
+
+    # Create the handling for adding an spe file automatically when created in the folder
+    #This is the event that watchdog is looking for.
+    def file_created(self, event):
+        #print(f"hey, {event.src_path} has been created!")
+        #Update the values in the plots class
+
+        #Update the calibration files and temperatures
+        left_calibration_file_location = r"{}".format(self.calibration_files.left_file_location.get("1.0",tk.END))            
+        left_calibration_file_location = left_calibration_file_location.replace("\n", "")
+
+        right_calibration_file_location = r"{}".format(self.calibration_files.right_file_location.get("1.0",tk.END))
+        right_calibration_file_location = right_calibration_file_location.replace("\n", "")
+
+        #Update the calibration temperature values
+        left_calibration_temperature = float(self.calibration_files.set_left_temperature.get("1.0",tk.END))
+        right_calibration_temperature = float(self.calibration_files.set_left_temperature.get("1.0",tk.END))
+
+        self.plots.left_calibration_temperature = left_calibration_temperature
+        self.plots.right_calibration_temperature = right_calibration_temperature
+        self.plots.left_calibration_file = spe.SpeFile(left_calibration_file_location)
+        self.plots.right_calibration_file = spe.SpeFile(right_calibration_file_location)
+        self.plots.data_file = spe.SpeFile(r'{}'.format(event.src_path))
+        self.plots.update_graphs()
+
+    def automatic_file_fitting(self):
+        if self.automatic_fitting_button_state.get() == 1:
+            print("Automatic file fitting enabled")
+
+            #Create the watchdog that looks out for new files created in selected directory
+            self.folder_path = self.selected_folder_to_save_tfit.get("1.0",tk.END).strip()  # Current directory, can be changed to the desired folder path
+            self.folder_path = self.folder_path.replace("/", "\\")        
+            self.my_event_handler = PatternMatchingEventHandler()
+            self.my_event_handler.on_created = self.file_created
+            self.my_observer = Observer()
+            self.my_observer.schedule(self.my_event_handler, self.folder_path, recursive=True)
+
+            #Starts watchdog and calls for function to check
+            self.my_observer.start()
+            self.file_fitting_thread()
+    
+    #Checks for new files and waits until the checkbox is unchecked to stop the watchdog
+    def file_fitting_thread(self):
+        if self.automatic_fitting_button_state.get() == 1:            
+            self.after(1000, self.file_fitting_thread)
+        else:            
+            print("Automatic file fitting disabled")
+            self.my_observer.stop()
+            self.my_observer.join()
+
 
     def data_file_open_dialog(self, file_location_number):
         #Differentiates between the light field spectra and the t-rax folder
@@ -458,7 +520,7 @@ if __name__ == "__main__":
     mainwindow.geometry('1280x1000')
     mainwindow.title("High T: Acton-PIXIS 400")
 
-    A = InitiateActonTfit(0,600)
+    A = InitiateActonTfit(mainwindow,0,0)
 
     mainwindow.mainloop()
 

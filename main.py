@@ -53,13 +53,13 @@ class ComPort_Controls(tk.Toplevel):
         #self.place(x = 0, y = 0, width = 360, height = 200)
 
         self.local_agilis_com_port = tk.StringVar(self)
-        self.local_agilis_com_port.set("COM11")
+        self.local_agilis_com_port.set(agilis_com_port)
 
         self.right_relays_com_port = tk.StringVar(self)
-        self.right_relays_com_port.set("COM6")
+        self.right_relays_com_port.set(right_denkovi_com_port)
 
         self.left_relays_com_port = tk.StringVar(self)
-        self.left_relays_com_port.set("COM7")
+        self.left_relays_com_port.set(left_denkovi_com_port)
 
         options = self.get_com_ports()
 
@@ -112,11 +112,11 @@ class ComPort_Controls(tk.Toplevel):
         if FestControlWindow.winfo_exists():
             #Updating the values within the global variables for festo comports
             globals()['right_denkovi_com_port'] = self.right_relays_com_port.get()
-            globals()['left_denkovi_com_port'] = self.right_relays_com_port.get()
+            globals()['left_denkovi_com_port'] = self.left_relays_com_port.get()
 
             #Updating the values within the existing classes
             FestControlWindow.FestoControlClass.RightSideControls.right_side_comport = self.right_relays_com_port.get()
-            FestControlWindow.FestoControlClass.LeftSideControls.right_side_comport = self.left_relays_com_port.get()
+            FestControlWindow.FestoControlClass.LeftSideControls.left_side_comport = self.left_relays_com_port.get()
         else:
             #Updating the values within the global variables for festo comports
             globals()['right_denkovi_com_port'] = self.right_relays_com_port.get()
