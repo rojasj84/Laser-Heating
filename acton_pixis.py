@@ -1,12 +1,11 @@
 import tkinter as tk
 import numpy as np 
 import sys
-import time
-import threading as Thread
+from pathlib import Path
+
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-
 from tkinter import filedialog
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -32,7 +31,7 @@ class LogoDisplay(tk.Frame):
         self.logotext.place(x = 5, y = 0, width=1250, height=35)
 
 class CalibrationFileSelection(tk.Frame):
-    def __init__(self, container, x_position, y_position):
+    def __init__(self, container, x_position, y_position, left_calibration_file, right_calibration_file, autofit_folderpath):
         #tk.Frame.__init__(self, container)
         super().__init__(container)
         
@@ -52,6 +51,10 @@ class CalibrationFileSelection(tk.Frame):
         self.left_file_location = tk.Text(self, bg = "light gray", font=('Helvetica', 10))#, relief=tk.FLAT)
         self.left_file_location.place(x = 10, y=45, width = 300, height=50) 
 
+        left_calibration_file = Path(left_calibration_file)
+        left_calibration_file = left_calibration_file.absolute()
+        self.left_file_location.insert("end-1c", left_calibration_file)
+        
         self.set_left_temperature = tk.Text(self, background="light gray", font=('Helvetica', 10))
         self.set_left_temperature.place(x=210, y=100, width = 100, height=25)
 
@@ -67,6 +70,10 @@ class CalibrationFileSelection(tk.Frame):
 
         self.right_file_location = tk.Text(self, bg = "light gray", font=('Helvetica', 10))#, relief=tk.FLAT)
         self.right_file_location.place(x = 10, y=185, width = 300, height=50) 
+        
+        right_calibration_file = Path(right_calibration_file)
+        right_calibration_file = right_calibration_file.absolute()
+        self.right_file_location.insert("end-1c", right_calibration_file)
 
         self.set_right_temperature = tk.Text(self, background="light gray", font=('Helvetica', 10))
         self.set_right_temperature.place(x=210, y=240, width = 100, height=25)
@@ -184,7 +191,7 @@ class TransmissionFilterSelection(tk.Frame):
         self.right_iris_selection.place(x = 930-90-130, y = 160, width=90, height=50)
 
 class PlotGraphs(tk.Frame):
-    def __init__(self, container, x_position, y_position):
+    def __init__(self, container, x_position, y_position, left_calibration_file, right_calibration_file, default_fit_file):
         #tk.Frame.__init__(self, container)
         super().__init__(container)
 
@@ -223,10 +230,10 @@ class PlotGraphs(tk.Frame):
 
         self.left_calibration_temperature = 2255
         self.right_calibration_temperature = 2255
-        #self.left_calibration_file = spe.SpeFile(r"T_Calib_20250314\15xMag\15xL\L_2255K_15x_wI.spe")
-        #self.right_calibration_file = spe.SpeFile(r"T_Calib_20250314\15xMag\15xR\R_2255K_15x_wI.spe")
-        #self.data_file = spe.SpeFile(r"T_Calib_20250314\15xMag\15xR\R_2255K_15x_wI.sp")
-        #self.update_graphs()
+        self.left_calibration_file = spe.SpeFile(left_calibration_file)
+        self.right_calibration_file = spe.SpeFile(right_calibration_file)
+        self.data_file = spe.SpeFile(default_fit_file)
+        self.update_graphs()
 
     def update_graphs(self):
         A = self.left_calibration_file
@@ -344,7 +351,7 @@ class PlotGraphs(tk.Frame):
         self.left_temperature_label.place(x=530, y= 30, width = 200, height = 30)
 
 class DataFileHandling(tk.Frame):
-    def __init__(self, container, temperature_plots, calibration_files, x_position, y_position):
+    def __init__(self, container, temperature_plots, calibration_files, x_position, y_position, autofit_folderpath):
         #tk.Frame.__init__(self, container)
         super().__init__(container)
         
@@ -372,6 +379,10 @@ class DataFileHandling(tk.Frame):
         self.selected_folder_to_save_tfit.place(x = 10, y = 150, width=300, height = 50)
         self.select_automatic_fit = tk.Checkbutton(self, text="Automatic Fitting", bg = "White", font=('Helvetica', 10), variable = self.automatic_fitting_button_state, command=lambda: self.automatic_file_fitting())
         self.select_automatic_fit.place(x = 10, y = 200, width= 150, height= 30)
+
+        autofit_folderpath = Path(autofit_folderpath)
+        autofit_folderpath = autofit_folderpath.absolute()
+        self.selected_folder_to_save_tfit.insert("end-1c", autofit_folderpath)
 
         self.enter_output_filename = tk.Label(self, text="Enter output filename", font=('Helvetica', 10), highlightbackground="black", highlightthickness=1)
         self.enter_output_filename.place(x = 10, y = 250, width=300, height = 30)
@@ -479,14 +490,20 @@ class InitiateActonTfit(tk.Frame):
         #Frame position information
         self.place(x = x_position, y = y_position)
 
+        self.right_calibration_file = r"TemperatureFit\\T_Calib_20250314\\15xMag\\R_2255K_15x_wI.spe"
+        self.left_calibration_file = r"TemperatureFit\\T_Calib_20250314\\15xMag\\L_2255K_15x_wI.spe"
+        self.autofit_folderpath = r"TemperatureFit"
+        default_fit_file = r"TemperatureFit\\T_Calib_20250314\\15xMag\\R_2255K_15x_wI.spe"
+
+
         self.Logo = LogoDisplay(self, 10,10)
         # CalibrationFile = CalibrationFileSelection(10, 360)
         self.TransmissionFilter = TransmissionFilterSelection (self, 340, 60)
         self.TransmissionFilter.place(x = 340, y = 60)
 
-        self.Tempreature_graphs = PlotGraphs(self, 340, 320)
-        self.CalibrationFileSelect = CalibrationFileSelection(self, 10, 90)
-        self.DataFileSelect = DataFileHandling(self, self.Tempreature_graphs, self.CalibrationFileSelect, 10, 90)
+        self.Tempreature_graphs = PlotGraphs(self, 340, 320, self.left_calibration_file, self.right_calibration_file, default_fit_file)
+        self.CalibrationFileSelect = CalibrationFileSelection(self, 10, 90, self.left_calibration_file, self.right_calibration_file, self.autofit_folderpath)
+        self.DataFileSelect = DataFileHandling(self, self.Tempreature_graphs, self.CalibrationFileSelect, 10, 90, self.autofit_folderpath)
         
         self.DataFileSelect_placedata = self.DataFileSelect.place_info()
         self.CalibrationFileSelect_placedata = self.CalibrationFileSelect.place_info()
