@@ -1,7 +1,7 @@
 import csv
 import numpy as np
 
-class FestoStateCalibrations:
+class FestoStateCalibrationsCheck:
     def __init__(self, csv_file_location):
         
         self.festo_states = np.empty(12)
@@ -20,17 +20,35 @@ class FestoStateCalibrations:
             self.festo_states = np.delete(self.festo_states, (0), axis=0)
             self.calibration_file_name = np.delete(self.calibration_file_name, (0), axis=0)
     
+    def compare_rows_return_calibration_file(self,festo_state):
+        rows,cols = self.festo_states.shape
 
+        for i in range (0, rows):
+            are_rows_same = (Calibrations.festo_states[i, :].astype(int) == test_list[:]).all()            
+            #print(are_rows_same)
+            if are_rows_same == True:
+                #print(are_rows_same, i)
+                return self.calibration_file_name[i]
+        
 
 if __name__ == "__main__":
 
     A_Win = 'TemperatureFit\calibration_file_table.csv'
     A_Lin = 'TemperatureFit/calibration_file_table.csv'
 
-    Calibrations = FestoStateCalibrations(A_Lin)
+    Calibrations = FestoStateCalibrationsCheck(A_Lin)
 
-    print(Calibrations.festo_states)
-    print(Calibrations.calibration_file_name)
+    rows,cols = Calibrations.festo_states.shape
 
-    test_list = [1,0,0,0,1,0,0,0,0,0,1,0]
+    test_list = np.array([1,0,0,1,0,1,0,0,0,0,1,0])
+
+    '''for i in range (0, rows):
+        #print(Calibrations.festo_states[i,:].astype(int))
+        
+        are_rows_same = (Calibrations.festo_states[i, :].astype(int) == test_list[:]).all()
+        if 
+        print(are_rows_same, i)'''
+    
+    A = Calibrations.compare_rows_return_calibration_file(test_list)
+    print(A)
 
