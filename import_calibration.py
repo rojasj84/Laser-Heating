@@ -24,7 +24,7 @@ class FestoStateCalibrationsCheck:
         rows,cols = self.festo_states.shape
 
         for i in range (0, rows):
-            are_rows_same = (Calibrations.festo_states[i, :].astype(int) == test_list[:]).all()            
+            are_rows_same = (self.festo_states[i, :].astype(int) == festo_state[:]).all()            
             #print(are_rows_same)
             if are_rows_same == True:
                 #print(are_rows_same, i)
@@ -41,6 +41,7 @@ if __name__ == "__main__":
     rows,cols = Calibrations.festo_states.shape
 
     test_list = np.array([1,0,0,1,0,1,0,0,0,0,1,0])
+    print(test_list)
 
     '''for i in range (0, rows):
         #print(Calibrations.festo_states[i,:].astype(int))
