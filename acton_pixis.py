@@ -233,11 +233,13 @@ class TransmissionFilterSelection(tk.Frame):
         left_state_binary_string = str(format(0b100,'03b')) + str(left_iris_binary) + str(left_three_ndfs_binary) + str(left_magnification_binary) + str(left_magnification_binary) + str(format(0b010,'03b')) 
         right_state_binary_string = str(format(0b100,'03b')) + str(right_iris_binary) + str(right_three_ndfs_binary) + str(right_magnification_binary) + str(right_magnification_binary) + str(format(0b010,'03b')) 
 
-        print(left_state_binary_string + " " + right_state_binary_string)
+        #print(left_state_binary_string + " " + right_state_binary_string)
 
-        A = list(map(int, left_state_binary_string))
+        left_relay_list = list(map(int, left_state_binary_string))
+        
+        left_relay_list = left_relay_list[::-1]
 
-        self.left_dekovi_relays.write_relay_state(A[0:7])
+        self.left_dekovi_relays.write_relay_state(left_relay_list[0:7])
 
         #Convert into numpy integer array used into the calibration 
         left_side_states = np.array(list(left_state_binary_string), dtype=int)

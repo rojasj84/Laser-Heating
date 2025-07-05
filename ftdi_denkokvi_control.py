@@ -16,13 +16,13 @@ class RelayConnect:
             self.RelayArray = ftd2xx.openEx(self.ftdi_device)
             self.RelayArray.setBaudRate(self.BaudRate)
             self.RelayArray.setBitMode(255,1)
-            print("Device Connected.")
+            #print("Device Connected.")
         except:
             print("Device cannot be connected to")
 
         #Return binary array of relay status
         relay_status_integer = ord(self.RelayArray.read(1))
-        print(relay_status_integer)
+        #print(relay_status_integer)
         relay_status_binars_string = bin(relay_status_integer)[2:].zfill(8)
         #print(relay_status_binars_string)
         self.relay_status = [int(bit) for bit in relay_status_binars_string]        
@@ -68,7 +68,7 @@ class RelayConnect:
         #write the new status to the relays
         #Convert array of 1 and 0s to string of 1s and 0s
         relay_status_string = "".join(str(bit) for bit in self.relay_status)
-        print(relay_status_string)
+        #print(relay_status_string)
 
         #Convert to integer value
         relay_status_string_integer = int(relay_status_string, 2)
