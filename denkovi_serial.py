@@ -118,7 +118,7 @@ def flip_single_relay_status(port, bit):
 
 if __name__ == "__main__":
     
-    #flipbit("COM5", 1)
+    flip_single_relay_status("COM5", 1)
     #flipbit("COM5", 5)
     input_buffer = readdenk2("COM5")
 

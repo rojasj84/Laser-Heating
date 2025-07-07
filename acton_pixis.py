@@ -124,9 +124,12 @@ class TransmissionFilterSelection(tk.Frame):
         
         ftdi_list = ftd2xx.listDevices() #Lists out all connected FTDI devices
         print(ftdi_list)
-        # Device name is AQ014SBC
+        # Device name is DAE004hC for Right
+        # DAE004hB is Left
 
-        self.left_dekovi_relays = ftdenk.RelayConnect(ftdi_list[0])
+        #Saved FTDI name values for the left and right side Denkovie Relays on the Table
+        #self.left_denkovi_relays = ftdenk.RelayConnect(b'DAE004hB')
+        #self.right_denkovi_relays = ftdenk.RelayConnect(b'DAE004hC')
         
         # Filter Determination Raio Buttons for the Left Side
         
@@ -138,22 +141,22 @@ class TransmissionFilterSelection(tk.Frame):
         self.left_no_filter_selection.place(x=30, y = 50, width=90, height=30)
         self.left_no_filter_selection.select()
 
-        self.left_700_filter_selection = tk.Radiobutton(self,text="70% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b100, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 100, value 4
+        self.left_700_filter_selection = tk.Radiobutton(self,text="70% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b001, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 100, value 4
         self.left_700_filter_selection.place(x=130, y = 50, width=90, height=30)
 
         self.left_500_filter_selection = tk.Radiobutton(self,text="50% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b010, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 010, value 2
         self.left_500_filter_selection.place(x=230, y = 50, width=90, height=30)
 
-        self.left_350_filter_selection = tk.Radiobutton(self,text="35% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b110, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 110, value 6
+        self.left_350_filter_selection = tk.Radiobutton(self,text="35% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b011, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 110, value 6
         self.left_350_filter_selection.place(x=330, y = 50, width=90, height=30)
         
-        self.left_100_filter_selection = tk.Radiobutton(self,text="10% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b001, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 001, value 1
+        self.left_100_filter_selection = tk.Radiobutton(self,text="10% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b100, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 001, value 1
         self.left_100_filter_selection.place(x=30, y = 90, width=90, height=30)
 
         self.left_070_filter_selection = tk.Radiobutton(self,text="7% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b101, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 101, value 5
         self.left_070_filter_selection.place(x=130, y = 90, width=90, height=30)
 
-        self.left_050_filter_selection = tk.Radiobutton(self,text="5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b011, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 011, value 3
+        self.left_050_filter_selection = tk.Radiobutton(self,text="5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b110, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 011, value 3
         self.left_050_filter_selection.place(x=230, y = 90, width=90, height=30)
 
         self.left_035_filter_selection = tk.Radiobutton(self,text="3.5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b111, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 111, value 7
@@ -214,7 +217,9 @@ class TransmissionFilterSelection(tk.Frame):
         self.right_magnification_selection_20 = tk.Radiobutton(self, text = "20x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_right, value = 1, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
         self.right_magnification_selection_20.place(x = 930-90-30, y = 160, width=90, height=50)
 
-        self.CalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table.csv")
+        #self.CalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table.csv")
+        self.RightCalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table_right_side.csv")
+        self.LeftCalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table_left_side.csv")
 
         self.UpdateFestoStates()
 
@@ -230,22 +235,31 @@ class TransmissionFilterSelection(tk.Frame):
         right_magnification_binary = format(self.magnifaction_varabile_right.get(), '01b')
         
         #create a string of 0s and 1s to send to the festo
-        left_state_binary_string = str(format(0b100,'03b')) + str(left_iris_binary) + str(left_three_ndfs_binary) + str(left_magnification_binary) + str(left_magnification_binary) + str(format(0b010,'03b')) 
+        #left_state_binary_string = str(format(0b000,'03b')) + str(left_iris_binary) + str(left_three_ndfs_binary) + str(left_magnification_binary) + str(left_magnification_binary) + str(format(0b010,'03b')) 
+        left_state_binary_string = str(format(0b010,'03b')) + str(left_magnification_binary) + str(left_magnification_binary) + str(left_three_ndfs_binary) + str(left_iris_binary) + str(format(0b001,'03b'))
         right_state_binary_string = str(format(0b100,'03b')) + str(right_iris_binary) + str(right_three_ndfs_binary) + str(right_magnification_binary) + str(right_magnification_binary) + str(format(0b010,'03b')) 
 
-        #print(left_state_binary_string + " " + right_state_binary_string)
+        #left_relay_list = list(map(int, left_state_binary_string))
+        #left_relay_list = left_relay_list[::-1]
+        #left_relay_list = left_relay_list[::-1]
 
-        left_relay_list = list(map(int, left_state_binary_string))
-        
-        left_relay_list = left_relay_list[::-1]
+       
 
-        self.left_dekovi_relays.write_relay_state(left_relay_list[0:7])
+        left_state_binary_string_totransmit = left_state_binary_string + str(format(0b0000,'04b'))
+        #left_state_binary_string_totransmit = left_state_binary_string_totransmit[::-1]
+        right_state_binary_string_totransmit = right_state_binary_string + str(format(0b0000,'04b'))
+
+        #print(left_state_binary_string_totransmit)
+        #self.left_denkovi_relays.write_relay_state(left_state_binary_string_totransmit)
+        #self.right_denkovi_relays.write_relay_state(right_state_binary_string_totransmit)
 
         #Convert into numpy integer array used into the calibration 
         left_side_states = np.array(list(left_state_binary_string), dtype=int)
-        right_side_states = np.array(list(left_state_binary_string), dtype=int)
+        right_side_states = np.array(list(right_state_binary_string), dtype=int)
         
-        print(self.CalibrationChecking.compare_rows_return_calibration_file(left_side_states))
+        print(self.LeftCalibrationChecking.compare_rows_return_calibration_file(left_side_states))
+        print(self.RightCalibrationChecking.compare_rows_return_calibration_file(right_side_states))
+
 
 class PlotGraphs(tk.Frame):
     def __init__(self, container, x_position, y_position, left_calibration_file, right_calibration_file, default_fit_file):
