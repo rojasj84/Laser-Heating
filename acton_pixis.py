@@ -2,6 +2,7 @@ import tkinter as tk
 import numpy as np 
 import sys
 import ftd2xx
+import os
 
 import import_calibration as calib_find
 from pathlib import Path
@@ -103,7 +104,7 @@ class CalibrationFileSelection(tk.Frame):
             self.right_file_location.config(state="disabled")        
     
 class TransmissionFilterSelection(tk.Frame):
-    def __init__(self, container, x_position, y_position):
+    def __init__(self, container, x_position, y_position, TemperatureGraphs, CalibrationFileSelect):
         #tk.Frame.__init__(self, container)
         super().__init__(container)
 
@@ -114,6 +115,9 @@ class TransmissionFilterSelection(tk.Frame):
         self.x_position = x_position
         self.y_position = y_position
         #self.place(x = self.x_position, y = self.y_position)
+
+        self.TemperatureGraphs = TemperatureGraphs
+        self.CalibrationFileSelect = CalibrationFileSelect
 
         self.select_one_transmission_filter_logo = tk.Label(self, text = "Select One Transmission Filter", font=('Helvetica', 15), background="White")
         self.select_one_transmission_filter_logo.place(x=5,y=5, width=920, height=30)
@@ -135,43 +139,45 @@ class TransmissionFilterSelection(tk.Frame):
         
         self.filter_variable_left = tk.IntVar()
         self.iris_variable_left = tk.IntVar()
-        self.magnifaction_varabile_left = tk.IntVar()        
+        self.magnifaction_varabile_left = tk.IntVar()   
 
-        self.left_no_filter_selection = tk.Radiobutton(self,text="NO FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b000, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #Value corresponds to the binary state of 000 for all 3 NDFs
+        right_side_selected_color = "Light Green"     
+
+        self.left_no_filter_selection = tk.Radiobutton(self,text="NO FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b000, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #Value corresponds to the binary state of 000 for all 3 NDFs
         self.left_no_filter_selection.place(x=30, y = 50, width=90, height=30)
         self.left_no_filter_selection.select()
 
-        self.left_700_filter_selection = tk.Radiobutton(self,text="70% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b001, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 100, value 4
+        self.left_700_filter_selection = tk.Radiobutton(self,text="70% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b001, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #NDF state 100, value 4
         self.left_700_filter_selection.place(x=130, y = 50, width=90, height=30)
 
-        self.left_500_filter_selection = tk.Radiobutton(self,text="50% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b010, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 010, value 2
+        self.left_500_filter_selection = tk.Radiobutton(self,text="50% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b010, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #NDF state 010, value 2
         self.left_500_filter_selection.place(x=230, y = 50, width=90, height=30)
 
-        self.left_350_filter_selection = tk.Radiobutton(self,text="35% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b011, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 110, value 6
+        self.left_350_filter_selection = tk.Radiobutton(self,text="35% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b011, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #NDF state 110, value 6
         self.left_350_filter_selection.place(x=330, y = 50, width=90, height=30)
         
-        self.left_100_filter_selection = tk.Radiobutton(self,text="10% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b100, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 001, value 1
+        self.left_100_filter_selection = tk.Radiobutton(self,text="10% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b100, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #NDF state 001, value 1
         self.left_100_filter_selection.place(x=30, y = 90, width=90, height=30)
 
-        self.left_070_filter_selection = tk.Radiobutton(self,text="7% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b101, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 101, value 5
+        self.left_070_filter_selection = tk.Radiobutton(self,text="7% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b101, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #NDF state 101, value 5
         self.left_070_filter_selection.place(x=130, y = 90, width=90, height=30)
 
-        self.left_050_filter_selection = tk.Radiobutton(self,text="5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b110, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 011, value 3
+        self.left_050_filter_selection = tk.Radiobutton(self,text="5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b110, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #NDF state 011, value 3
         self.left_050_filter_selection.place(x=230, y = 90, width=90, height=30)
 
-        self.left_035_filter_selection = tk.Radiobutton(self,text="3.5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b111, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates) #NDF state 111, value 7
+        self.left_035_filter_selection = tk.Radiobutton(self,text="3.5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_left, value = 0b111, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates) #NDF state 111, value 7
         self.left_035_filter_selection.place(x=330, y = 90, width=90, height=30)
 
-        self.left_iris_selection_out = tk.Radiobutton(self, text = "Iris Out", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_left, value = 0b0, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates)
+        self.left_iris_selection_out = tk.Radiobutton(self, text = "Iris Out", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_left, value = 0b0, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
         self.left_iris_selection_out.place(x = 30, y = 160, width=90, height=50)
         
-        self.left_iris_selection_in = tk.Radiobutton(self, text = "Iris In", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_left, value = 0b1, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates)
+        self.left_iris_selection_in = tk.Radiobutton(self, text = "Iris In", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_left, value = 0b1, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
         self.left_iris_selection_in.place(x = 130, y = 160, width=90, height=50)
 
-        self.left_magnification_selection_15 = tk.Radiobutton(self, text = "15x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_left, value = 0b0, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates)
+        self.left_magnification_selection_15 = tk.Radiobutton(self, text = "15x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_left, value = 0b0, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
         self.left_magnification_selection_15.place(x = 230, y = 160, width=90, height=50)
         
-        self.left_magnification_selection_20 = tk.Radiobutton(self, text = "20x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_left, value = 0b1, selectcolor="Light Blue", background="Light Blue", command=self.UpdateFestoStates)
+        self.left_magnification_selection_20 = tk.Radiobutton(self, text = "20x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_left, value = 0b1, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
         self.left_magnification_selection_20.place(x = 330, y = 160, width=90, height=50)
 
         # Filter Determination Raio Buttons for the Right Side
@@ -180,46 +186,51 @@ class TransmissionFilterSelection(tk.Frame):
         self.iris_variable_right = tk.IntVar()
         self.magnifaction_varabile_right = tk.IntVar()
 
-        self.right_no_filter_selection = tk.Radiobutton(self,text="NO FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b000, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        right_side_selected_color = "Red"
+
+        self.right_no_filter_selection = tk.Radiobutton(self,text="NO FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b000, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_no_filter_selection.place(x=930-90-330, y = 50, width=90, height=30)
         self.right_no_filter_selection.select()
 
-        self.right_700_filter_selection = tk.Radiobutton(self,text="70% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b100, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_700_filter_selection = tk.Radiobutton(self,text="70% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b100, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_700_filter_selection.place(x=930-90-230, y = 50, width=90, height=30)
 
-        self.right_500_filter_selection = tk.Radiobutton(self,text="50% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b010, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_500_filter_selection = tk.Radiobutton(self,text="50% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b010, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_500_filter_selection.place(x=930-90-130, y = 50, width=90, height=30)
 
-        self.right_350_filter_selection = tk.Radiobutton(self,text="35% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b110, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_350_filter_selection = tk.Radiobutton(self,text="35% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b110, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_350_filter_selection.place(x=930-90-30, y = 50, width=90, height=30)
         
-        self.right_100_filter_selection = tk.Radiobutton(self,text="10% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b001, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_100_filter_selection = tk.Radiobutton(self,text="10% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b001, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_100_filter_selection.place(x=930-90-330, y = 90, width=90, height=30)
 
-        self.right_070_filter_selection = tk.Radiobutton(self,text="7% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b101, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_070_filter_selection = tk.Radiobutton(self,text="7% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b101, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_070_filter_selection.place(x=930-90-230, y = 90, width=90, height=30)
 
-        self.right_050_filter_selection = tk.Radiobutton(self,text="5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b011, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_050_filter_selection = tk.Radiobutton(self,text="5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b011, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_050_filter_selection.place(x=930-90-130, y = 90, width=90, height=30)
 
-        self.right_035_filter_selection = tk.Radiobutton(self,text="3.5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b111, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_035_filter_selection = tk.Radiobutton(self,text="3.5% FILTER", font=('Helvetica', 10), indicatoron = 0, variable = self.filter_variable_right, value = 0b111, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_035_filter_selection.place(x=930-90-30, y = 90, width=90, height=30)
 
-        self.right_iris_selection_out = tk.Radiobutton(self, text = "Iris Out", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_right, value = 0, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_iris_selection_out = tk.Radiobutton(self, text = "Iris Out", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_right, value = 0, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_iris_selection_out.place(x = 930-90-330, y = 160, width=90, height=50)
         
-        self.right_iris_selection_in = tk.Radiobutton(self, text = "Iris In", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_right, value = 1, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_iris_selection_in = tk.Radiobutton(self, text = "Iris In", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_right, value = 1, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_iris_selection_in.place(x = 930-90-230, y = 160, width=90, height=50)
 
-        self.right_magnification_selection_15 = tk.Radiobutton(self, text = "15x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_right, value = 0, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_magnification_selection_15 = tk.Radiobutton(self, text = "15x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_right, value = 0, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_magnification_selection_15.place(x = 930-90-130, y = 160, width=90, height=50)
         
-        self.right_magnification_selection_20 = tk.Radiobutton(self, text = "20x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_right, value = 1, selectcolor="Pink", background="Pink", command=self.UpdateFestoStates)
+        self.right_magnification_selection_20 = tk.Radiobutton(self, text = "20x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_right, value = 1, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
         self.right_magnification_selection_20.place(x = 930-90-30, y = 160, width=90, height=50)
 
         #self.CalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table.csv")
         self.RightCalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table_right_side.csv")
         self.LeftCalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table_left_side.csv")
+
+        self.temperature_calibration_left_side_filename = "test.1"
+        self.temperature_calibration_right_side_filename = "test.2"
 
         self.UpdateFestoStates()
 
@@ -243,11 +254,17 @@ class TransmissionFilterSelection(tk.Frame):
         #left_relay_list = left_relay_list[::-1]
         #left_relay_list = left_relay_list[::-1]
 
-       
-
         left_state_binary_string_totransmit = left_state_binary_string + str(format(0b0000,'04b'))
         #left_state_binary_string_totransmit = left_state_binary_string_totransmit[::-1]
         right_state_binary_string_totransmit = right_state_binary_string + str(format(0b0000,'04b'))
+
+
+        #Updates the calibration file names on the Calibration File Select Class and changes the display on screen
+        self.CalibrationFileSelect.left_file_location.delete("1.0", tk.END)
+        self.CalibrationFileSelect.left_file_location.insert("end-1c", self.temperature_calibration_left_side_filename)
+
+        self.CalibrationFileSelect.right_file_location.delete("1.0", tk.END)
+        self.CalibrationFileSelect.right_file_location.insert("end-1c", self.temperature_calibration_right_side_filename)
 
         #print(left_state_binary_string_totransmit)
         #self.left_denkovi_relays.write_relay_state(left_state_binary_string_totransmit)
@@ -257,8 +274,12 @@ class TransmissionFilterSelection(tk.Frame):
         left_side_states = np.array(list(left_state_binary_string), dtype=int)
         right_side_states = np.array(list(right_state_binary_string), dtype=int)
         
-        print(self.LeftCalibrationChecking.compare_rows_return_calibration_file(left_side_states))
-        print(self.RightCalibrationChecking.compare_rows_return_calibration_file(right_side_states))
+        #Store the name of the calibration file that corresponds to the relay states
+        self.temperature_calibration_left_side_filename = self.LeftCalibrationChecking.compare_rows_return_calibration_file(left_side_states)
+        self.temperature_calibration_right_side_filename = self.RightCalibrationChecking.compare_rows_return_calibration_file(right_side_states)
+
+        #print(self.temperature_calibration_left_side_filename)
+        #print(self.temperature_calibration_right_side_filename)
 
 
 class PlotGraphs(tk.Frame):
@@ -304,6 +325,11 @@ class PlotGraphs(tk.Frame):
         self.left_calibration_file = spe.SpeFile(left_calibration_file)
         self.right_calibration_file = spe.SpeFile(right_calibration_file)
         self.data_file = spe.SpeFile(default_fit_file)
+        self.update_graphs()
+
+    def update_calibration_file(self, left_calibration_file):
+        self.left_calibration_file = spe.SpeFile(left_calibration_file)
+        self.right_calibration_file = spe.SpeFile(self.right_calibration_file)
         self.update_graphs()
 
     def update_graphs(self):
@@ -569,11 +595,17 @@ class InitiateActonTfit(tk.Frame):
 
         self.Logo = LogoDisplay(self, 10,10)
         # CalibrationFile = CalibrationFileSelection(10, 360)
-        self.TransmissionFilter = TransmissionFilterSelection (self, 340, 60)
-        self.TransmissionFilter.place(x = 340, y = 60)
-
+        
+        #Calibration Files need to be updated in both Temperature Graphs and Calibration File Selection
         self.Tempreature_graphs = PlotGraphs(self, 340, 320, self.left_calibration_file, self.right_calibration_file, default_fit_file)
         self.CalibrationFileSelect = CalibrationFileSelection(self, 10, 90, self.left_calibration_file, self.right_calibration_file, self.autofit_folderpath)
+
+        self.TransmissionFilter = TransmissionFilterSelection (self, 340, 60, self.Tempreature_graphs, self.CalibrationFileSelect)
+        self.TransmissionFilter.place(x = 340, y = 60)
+
+        right_side_calibration_filename = self.clean_calibration_filename(str(self.TransmissionFilter.temperature_calibration_right_side_filename))
+        left_side_calibration_filename = self.clean_calibration_filename(str(self.TransmissionFilter.temperature_calibration_left_side_filename))
+        
         self.DataFileSelect = DataFileHandling(self, self.Tempreature_graphs, self.CalibrationFileSelect, 10, 90, self.autofit_folderpath)
         
         self.DataFileSelect_placedata = self.DataFileSelect.place_info()
@@ -587,6 +619,19 @@ class InitiateActonTfit(tk.Frame):
         self.show_calibration_selection_window = tk.Button(self, text="Calibration Selection", command=lambda: self.select_file_handling(1))
         self.show_calibration_selection_window.place(x = 10, y = 60, width = 160, height = 25)
         self.show_calibration_selection_window.config(state="active")
+
+    def clean_calibration_filename(self, filename):
+
+        A = filename
+        A = A.strip("['")
+        A = A.strip("']")
+        filepath = "TemperatureFit/current_calibrations/" + A + ".spe"
+        return os.path.abspath(filepath)
+    
+    def update_calibration_filepath(self):
+        x = 0
+
+
 
     def select_file_handling(self, input):
         x = 0
