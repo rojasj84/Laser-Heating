@@ -169,16 +169,17 @@ class TransmissionFilterSelection(tk.Frame):
         self.left_035_filter_selection.place(x=330, y = 90, width=90, height=30)
 
         self.left_iris_selection_out = tk.Radiobutton(self, text = "Iris Out", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_left, value = 0b0, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
-        self.left_iris_selection_out.place(x = 30, y = 160, width=90, height=50)
+        self.left_iris_selection_out.place(x = 30, y = 160, width=90, height=30)
         
         self.left_iris_selection_in = tk.Radiobutton(self, text = "Iris In", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_left, value = 0b1, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
-        self.left_iris_selection_in.place(x = 130, y = 160, width=90, height=50)
+        self.left_iris_selection_in.place(x = 130, y = 160, width=90, height=30)
+        self.left_iris_selection_in.select()
 
         self.left_magnification_selection_15 = tk.Radiobutton(self, text = "15x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_left, value = 0b0, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
-        self.left_magnification_selection_15.place(x = 230, y = 160, width=90, height=50)
+        self.left_magnification_selection_15.place(x = 230, y = 160, width=90, height=30)
         
         self.left_magnification_selection_20 = tk.Radiobutton(self, text = "20x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_left, value = 0b1, selectcolor= right_side_selected_color, background="Light Blue", command=self.UpdateFestoStates)
-        self.left_magnification_selection_20.place(x = 330, y = 160, width=90, height=50)
+        self.left_magnification_selection_20.place(x = 330, y = 160, width=90, height=30)
 
         # Filter Determination Raio Buttons for the Right Side
         
@@ -214,16 +215,17 @@ class TransmissionFilterSelection(tk.Frame):
         self.right_035_filter_selection.place(x=930-90-30, y = 90, width=90, height=30)
 
         self.right_iris_selection_out = tk.Radiobutton(self, text = "Iris Out", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_right, value = 0, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
-        self.right_iris_selection_out.place(x = 930-90-330, y = 160, width=90, height=50)
+        self.right_iris_selection_out.place(x = 930-90-330, y = 160, width=90, height=30)
         
         self.right_iris_selection_in = tk.Radiobutton(self, text = "Iris In", font=('Helvetica', 12), indicatoron=0, variable=self.iris_variable_right, value = 1, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
-        self.right_iris_selection_in.place(x = 930-90-230, y = 160, width=90, height=50)
+        self.right_iris_selection_in.place(x = 930-90-230, y = 160, width=90, height=30)
+        self.right_iris_selection_in.select()
 
         self.right_magnification_selection_15 = tk.Radiobutton(self, text = "15x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_right, value = 0, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
-        self.right_magnification_selection_15.place(x = 930-90-130, y = 160, width=90, height=50)
+        self.right_magnification_selection_15.place(x = 930-90-130, y = 160, width=90, height=30)
         
         self.right_magnification_selection_20 = tk.Radiobutton(self, text = "20x", font=('Helvetica', 12), indicatoron=0, variable=self.magnifaction_varabile_right, value = 1, selectcolor=right_side_selected_color, background="Pink", command=self.UpdateFestoStates)
-        self.right_magnification_selection_20.place(x = 930-90-30, y = 160, width=90, height=50)
+        self.right_magnification_selection_20.place(x = 930-90-30, y = 160, width=90, height=30)
 
         #self.CalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table.csv")
         self.RightCalibrationChecking = calib_find.FestoStateCalibrationsCheck(os.path.abspath("TemperatureFit/calibration_file_table_right_side.csv"))
