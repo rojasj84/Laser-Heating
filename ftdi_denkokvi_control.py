@@ -1,4 +1,4 @@
-import ftd2xx
+#import ftd2xx
 import time
 
 class RelayConnect:

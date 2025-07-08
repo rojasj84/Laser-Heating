@@ -1,7 +1,7 @@
 import tkinter as tk
 import numpy as np 
 import sys
-import ftd2xx
+#import ftd2xx
 import os
 
 import import_calibration as calib_find
@@ -126,8 +126,8 @@ class TransmissionFilterSelection(tk.Frame):
         self.select_one_transmission_filter_logo.place(x=5,y=135, width=920, height=30)
 
         
-        ftdi_list = ftd2xx.listDevices() #Lists out all connected FTDI devices
-        print(ftdi_list)
+        #ftdi_list = ftd2xx.listDevices() #Lists out all connected FTDI devices
+        #print(ftdi_list)
         # Device name is DAE004hC for Right
         # DAE004hB is Left
 
@@ -226,8 +226,8 @@ class TransmissionFilterSelection(tk.Frame):
         self.right_magnification_selection_20.place(x = 930-90-30, y = 160, width=90, height=50)
 
         #self.CalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table.csv")
-        self.RightCalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table_right_side.csv")
-        self.LeftCalibrationChecking = calib_find.FestoStateCalibrationsCheck("TemperatureFit\calibration_file_table_left_side.csv")
+        self.RightCalibrationChecking = calib_find.FestoStateCalibrationsCheck(os.path.abspath("TemperatureFit/calibration_file_table_right_side.csv"))
+        self.LeftCalibrationChecking = calib_find.FestoStateCalibrationsCheck(os.path.abspath("TemperatureFit/calibration_file_table_left_side.csv"))
 
         self.temperature_calibration_left_side_filename = "test.1"
         self.temperature_calibration_right_side_filename = "test.2"
@@ -258,14 +258,6 @@ class TransmissionFilterSelection(tk.Frame):
         #left_state_binary_string_totransmit = left_state_binary_string_totransmit[::-1]
         right_state_binary_string_totransmit = right_state_binary_string + str(format(0b0000,'04b'))
 
-
-        #Updates the calibration file names on the Calibration File Select Class and changes the display on screen
-        self.CalibrationFileSelect.left_file_location.delete("1.0", tk.END)
-        self.CalibrationFileSelect.left_file_location.insert("end-1c", self.temperature_calibration_left_side_filename)
-
-        self.CalibrationFileSelect.right_file_location.delete("1.0", tk.END)
-        self.CalibrationFileSelect.right_file_location.insert("end-1c", self.temperature_calibration_right_side_filename)
-
         #print(left_state_binary_string_totransmit)
         #self.left_denkovi_relays.write_relay_state(left_state_binary_string_totransmit)
         #self.right_denkovi_relays.write_relay_state(right_state_binary_string_totransmit)
@@ -280,6 +272,17 @@ class TransmissionFilterSelection(tk.Frame):
 
         #print(self.temperature_calibration_left_side_filename)
         #print(self.temperature_calibration_right_side_filename)
+
+        #Updates the calibration file names on the Calibration File Select Class and changes the display on screen
+
+        path_to_new_left_calibration = clean_calibration_filename(self.temperature_calibration_left_side_filename)
+        #print(path_to_new_left_calibration)
+        self.CalibrationFileSelect.left_file_location.delete("1.0", tk.END)
+        self.CalibrationFileSelect.left_file_location.insert("end-1c", path_to_new_left_calibration)
+
+        path_to_new_right_calibration = clean_calibration_filename(self.temperature_calibration_right_side_filename)
+        self.CalibrationFileSelect.right_file_location.delete("1.0", tk.END)
+        self.CalibrationFileSelect.right_file_location.insert("end-1c", path_to_new_right_calibration)
 
 
 class PlotGraphs(tk.Frame):
@@ -518,7 +521,7 @@ class DataFileHandling(tk.Frame):
 
             #Create the watchdog that looks out for new files created in selected directory
             self.folder_path = self.selected_folder_to_save_tfit.get("1.0",tk.END).strip()  # Current directory, can be changed to the desired folder path
-            self.folder_path = self.folder_path.replace("/", "\\")        
+            #self.folder_path = self.folder_path.replace("/", "\\")        
             self.my_event_handler = PatternMatchingEventHandler()
             self.my_event_handler.on_created = self.file_created
             self.my_observer = Observer()
@@ -587,10 +590,10 @@ class InitiateActonTfit(tk.Frame):
         #Frame position information
         self.place(x = x_position, y = y_position)
 
-        self.right_calibration_file = r"TemperatureFit\\T_Calib_20250314\\15xMag\\R_2255K_15x_wI.spe"
-        self.left_calibration_file = r"TemperatureFit\\T_Calib_20250314\\15xMag\\L_2255K_15x_wI.spe"
+        self.right_calibration_file = "TemperatureFit/current_calibrations/R_2255K_15x_wI.spe"
+        self.left_calibration_file = "TemperatureFit/current_calibrations/L_2255K_15x_wI.spe"
         self.autofit_folderpath = r"TemperatureFit"
-        default_fit_file = r"TemperatureFit\\T_Calib_20250314\\15xMag\\R_2255K_15x_wI.spe"
+        default_fit_file = "TemperatureFit/current_calibrations/R_2255K_15x_wI.spe"
 
 
         self.Logo = LogoDisplay(self, 10,10)
@@ -603,8 +606,8 @@ class InitiateActonTfit(tk.Frame):
         self.TransmissionFilter = TransmissionFilterSelection (self, 340, 60, self.Tempreature_graphs, self.CalibrationFileSelect)
         self.TransmissionFilter.place(x = 340, y = 60)
 
-        right_side_calibration_filename = self.clean_calibration_filename(str(self.TransmissionFilter.temperature_calibration_right_side_filename))
-        left_side_calibration_filename = self.clean_calibration_filename(str(self.TransmissionFilter.temperature_calibration_left_side_filename))
+        right_side_calibration_filename = clean_calibration_filename(self.TransmissionFilter.temperature_calibration_right_side_filename)
+        left_side_calibration_filename = clean_calibration_filename(self.TransmissionFilter.temperature_calibration_left_side_filename)
         
         self.DataFileSelect = DataFileHandling(self, self.Tempreature_graphs, self.CalibrationFileSelect, 10, 90, self.autofit_folderpath)
         
@@ -646,6 +649,15 @@ class InitiateActonTfit(tk.Frame):
             self.show_calibration_selection_window.config(state="active")
             self.show_data_selection_window.config(state="disabled")
 
+
+def clean_calibration_filename(filename):
+
+        A = str(filename)
+        A = A.strip("['")
+        A = A.strip("']")
+        filepath = "TemperatureFit/current_calibrations/" + A + ".spe"
+        return os.path.abspath(filepath)
+    
 
 if __name__ == "__main__":
 

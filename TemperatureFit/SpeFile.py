@@ -42,6 +42,7 @@ can be requested from the object.
 import datetime
 import codecs
 from xml.dom.minidom import parseString
+import os
 
 import numpy as np
 from numpy.polynomial.polynomial import polyval
@@ -57,6 +58,8 @@ class SpeFile(object):
         directory
         """
         """"""
+        filename = os.path.abspath(filename)
+        #print(filename)
         self.filename = filename
         self.debug = debug
         self._fid = open(filename, 'rb')
@@ -416,6 +419,6 @@ class SpeFile(object):
 
 if __name__ == "__main__":
     
-    A = SpeFile(r'C:\Users\jarojas\Desktop\Laser Heating\T_Calib_20250314\15xMag\15xL\L_2255K_15x_wI.spe')
-    B = SpeFile(r'C:\Users\jarojas\Desktop\Laser Heating\T_Calib_20250314\15xMag\15xR\R_2255K_15x_wI.spe')
+    A = SpeFile("TemperatureFit/current_calibrations/L_2255K_15x_wI.spe")
+    B = SpeFile("TemperatureFit/current_calibrations/R_2255K_15x_wI.spe")
     print(A.roi_width)
