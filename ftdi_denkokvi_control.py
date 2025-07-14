@@ -1,4 +1,4 @@
-#import ftd2xx
+import ftd2xx
 import time
 
 class RelayConnect:
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     #TTLRelays.flip_one_relay(12)
 
     #print(TTLRelays.getRelaystatus())
-    time.sleep(.5)
+    time.sleep(.25)
         
 
         

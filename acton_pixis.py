@@ -1,7 +1,7 @@
 import tkinter as tk
 import numpy as np 
 import sys
-#import ftd2xx
+import ftd2xx
 import os
 
 import import_calibration as calib_find
@@ -135,7 +135,7 @@ class TransmissionFilterSelection(tk.Frame):
         #self.left_denkovi_relays = ftdenk.RelayConnect(b'DAE004hB')
         #self.right_denkovi_relays = ftdenk.RelayConnect(b'DAE004hC')
         
-        # Filter Determination Raio Buttons for the Left Side
+        #Filter Determination Raio Buttons for the Left Side
         
         self.filter_variable_left = tk.IntVar()
         self.iris_variable_left = tk.IntVar()
@@ -285,7 +285,6 @@ class TransmissionFilterSelection(tk.Frame):
         path_to_new_right_calibration = clean_calibration_filename(self.temperature_calibration_right_side_filename)
         self.CalibrationFileSelect.right_file_location.delete("1.0", tk.END)
         self.CalibrationFileSelect.right_file_location.insert("end-1c", path_to_new_right_calibration)
-
 
 class PlotGraphs(tk.Frame):
     def __init__(self, container, x_position, y_position, left_calibration_file, right_calibration_file, default_fit_file):
@@ -578,6 +577,16 @@ class DataFileHandling(tk.Frame):
             #print(open_file_name)
             self.selected_folder_to_save_tfit.delete("1.0",tk.END)
             self.selected_folder_to_save_tfit.insert(tk.END, self.open_folder_path)        
+
+class OutputData():
+    def __init__(self):
+        self.wavelength_array = np.zeros[-1]
+    
+    def save_single_file():
+        x = 0
+
+    def save_automatic_files():
+        x = 0
 
 class InitiateActonTfit(tk.Frame):
     #def __init__(self, x_position, y_position):
