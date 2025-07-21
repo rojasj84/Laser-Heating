@@ -3,11 +3,15 @@ import numpy as np
 import sys
 import ftd2xx
 import os
+import datetime
+import time
+import csv
 
 import import_calibration as calib_find
-from pathlib import Path
 import ftdi_denkokvi_control as ftdenk
+import pandas as pd
 
+from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from tkinter import filedialog
@@ -489,7 +493,7 @@ class DataFileHandling(tk.Frame):
         self.enter_output_filename.place(x = 10, y = 250, width=300, height = 30)
         self.entered_output_filename = tk.Text(self, font=('Helvetica', 10), highlightbackground="black", highlightthickness=0, background="Light Gray")
         self.entered_output_filename.place(x = 10, y = 290, width=300, height = 30)
-        self.select_folder_to_save_tfit = tk.Button(self, text="Save Temperature Fit", font=('Helvetica', 10), command=lambda: self.data_file_open_dialog(2))
+        self.select_folder_to_save_tfit = tk.Button(self, text="Save Temperature Fit", font=('Helvetica', 10), command=self.save_file)
         self.select_folder_to_save_tfit.place(x = 10, y = 325, width=300, height = 30)
 
     # Create the handling for adding an spe file automatically when created in the folder
@@ -498,24 +502,30 @@ class DataFileHandling(tk.Frame):
         #print(f"hey, {event.src_path} has been created!")
         #Update the values in the plots class
 
-        #Update the calibration files and temperatures
-        left_calibration_file_location = r"{}".format(self.calibration_files.left_file_location.get("1.0",tk.END))            
-        left_calibration_file_location = left_calibration_file_location.replace("\n", "")
+        #Checks if file created is an SPE in case output directory is also the watchdog directory
+        if ".spe" in r'{}'.format(event.src_path):
+            #Update the calibration files and temperatures
+            left_calibration_file_location = r"{}".format(self.calibration_files.left_file_location.get("1.0",tk.END))            
+            left_calibration_file_location = left_calibration_file_location.replace("\n", "")
 
-        right_calibration_file_location = r"{}".format(self.calibration_files.right_file_location.get("1.0",tk.END))
-        right_calibration_file_location = right_calibration_file_location.replace("\n", "")
+            right_calibration_file_location = r"{}".format(self.calibration_files.right_file_location.get("1.0",tk.END))
+            right_calibration_file_location = right_calibration_file_location.replace("\n", "")
 
-        #Update the calibration temperature values
-        left_calibration_temperature = float(self.calibration_files.set_left_temperature.get("1.0",tk.END))
-        right_calibration_temperature = float(self.calibration_files.set_left_temperature.get("1.0",tk.END))
+            #Update the calibration temperature values
+            left_calibration_temperature = float(self.calibration_files.set_left_temperature.get("1.0",tk.END))
+            right_calibration_temperature = float(self.calibration_files.set_left_temperature.get("1.0",tk.END))
 
-        self.plots.left_calibration_temperature = left_calibration_temperature
-        self.plots.right_calibration_temperature = right_calibration_temperature
-        self.plots.left_calibration_file = spe.SpeFile(left_calibration_file_location)
-        self.plots.right_calibration_file = spe.SpeFile(right_calibration_file_location)
-        self.plots.data_file = spe.SpeFile(r'{}'.format(event.src_path))
-        self.plots.update_graphs()
-
+            self.plots.left_calibration_temperature = left_calibration_temperature
+            self.plots.right_calibration_temperature = right_calibration_temperature
+            self.plots.left_calibration_file = spe.SpeFile(left_calibration_file_location)
+            self.plots.right_calibration_file = spe.SpeFile(right_calibration_file_location)
+            self.plots.data_file = spe.SpeFile(r'{}'.format(event.src_path))
+            self.plots.update_graphs()      
+            self.save_file()
+        else:
+            print("Not an SPE File!")
+            
+        
     def automatic_file_fitting(self):
         if self.automatic_fitting_button_state.get() == 1:
             print("Automatic file fitting enabled")
@@ -530,7 +540,7 @@ class DataFileHandling(tk.Frame):
 
             #Starts watchdog and calls for function to check
             self.my_observer.start()
-            self.file_fitting_thread()
+            self.file_fitting_thread()            
     
     #Checks for new files and waits until the checkbox is unchecked to stop the watchdog
     def file_fitting_thread(self):
@@ -541,7 +551,32 @@ class DataFileHandling(tk.Frame):
             self.my_observer.stop()
             self.my_observer.join()
 
+    def save_file(self):
+        #Output the wave length, raw count, corrected counts, and fit curve
+        #print(self.plots.right_wavelengths)
 
+        all_data = {
+            'Wavelength': self.plots.right_wavelengths,
+            'Left Raw': self.plots.left_raw,
+            'Left Corrected': self.plots.left_corrected,
+            'Left Fit': self.plots.left_fit,
+            'Right Raw': self.plots.right_raw,
+            'Right Corrected': self.plots.right_corrected,
+            'Right Fit': self.plots.right_fit
+        }
+
+        df = pd.DataFrame(all_data)
+        save_file_time = datetime.datetime.now().strftime('%Y%m%d-%H_%M_%S')
+        save_file_location = self.selected_folder_to_save_tfit.get("1.0", "end-1c") + "\\"       
+        save_file_name = self.entered_output_filename.get("1.0", "end-1c")
+
+        if save_file_name == "":
+            save_file_name = "Fit Data"
+
+        complete_file_name = save_file_location + save_file_name + " " + save_file_time + ".csv"
+
+        df.to_csv(complete_file_name, index=False)
+    
     def data_file_open_dialog(self, file_location_number):
         #Differentiates between the light field spectra and the t-rax folder
         if file_location_number == 1:
@@ -577,16 +612,6 @@ class DataFileHandling(tk.Frame):
             #print(open_file_name)
             self.selected_folder_to_save_tfit.delete("1.0",tk.END)
             self.selected_folder_to_save_tfit.insert(tk.END, self.open_folder_path)        
-
-class OutputData():
-    def __init__(self):
-        self.wavelength_array = np.zeros[-1]
-    
-    def save_single_file():
-        x = 0
-
-    def save_automatic_files():
-        x = 0
 
 class InitiateActonTfit(tk.Frame):
     #def __init__(self, x_position, y_position):
@@ -644,8 +669,6 @@ class InitiateActonTfit(tk.Frame):
     
     def update_calibration_filepath(self):
         x = 0
-
-
 
     def select_file_handling(self, input):
         x = 0

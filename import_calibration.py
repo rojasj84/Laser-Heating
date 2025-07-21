@@ -3,7 +3,7 @@ import numpy as np
 
 class FestoStateCalibrationsCheck:
     def __init__(self, csv_file_location):
-        print(csv_file_location)
+        #print(csv_file_location)
         self.festo_states = np.empty(12)
         self.calibration_file_name = np.empty(1)
 
