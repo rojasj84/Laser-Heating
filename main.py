@@ -35,7 +35,7 @@ class Piezo_Controls(tk.Toplevel):
         self.title("AGILIS Control Window")
         self.geometry("505x600")
         self.PiezoControlClass = InitiatePiezoMotorControls(self,0,0,agilis_com_port)
-        print(agilis_com_port)          
+        #print(agilis_com_port)          
 
 class Festo_Controls(tk.Toplevel):
      def __init__(self):

@@ -461,7 +461,7 @@ class DataFileHandling(tk.Frame):
         super().__init__(container)
         
         #Frame visual configuration
-        self.configure(width=320,height=370,background="White", highlightbackground="black", highlightthickness=1)
+        self.configure(width=320,height=460,background="White", highlightbackground="black", highlightthickness=1)
         
         #Frame position information
         self.place(x = x_position, y = y_position)
@@ -478,7 +478,7 @@ class DataFileHandling(tk.Frame):
         self.selected_lightfield_spectra = tk.Text(self, font=('Helvetica', 10), highlightbackground="black", highlightthickness=0, background="Light Gray")
         self.selected_lightfield_spectra.place(x = 10, y = 50, width=300, height = 50)
 
-        self.select_folder_to_save_tfit = tk.Button(self, text="Select Folder for T-fit", font=('Helvetica', 10), command=lambda: self.data_file_open_dialog(2))
+        self.select_folder_to_save_tfit = tk.Button(self, text="Select Folder for Automatic T-fit", font=('Helvetica', 10), command=lambda: self.data_file_open_dialog(2))
         self.select_folder_to_save_tfit.place(x = 10, y = 110, width=300, height = 30)
         self.selected_folder_to_save_tfit = tk.Text(self, font=('Helvetica', 10), highlightbackground="black", highlightthickness=0, background="Light Gray")
         self.selected_folder_to_save_tfit.place(x = 10, y = 150, width=300, height = 50)
@@ -489,12 +489,21 @@ class DataFileHandling(tk.Frame):
         autofit_folderpath = autofit_folderpath.absolute()
         self.selected_folder_to_save_tfit.insert("end-1c", autofit_folderpath)
 
+        self.select_folder_to_save_output_file = tk.Button(self, text="Select Folder for Saving T-fit", font=('Helvetica', 10), command=lambda: self.data_file_open_dialog(3))
+        self.select_folder_to_save_output_file.place(x = 10, y = 250, width=300, height = 30)
+        self.selected_folder_to_save_output_file = tk.Text(self, font=('Helvetica', 10), highlightbackground="black", highlightthickness=0, background="Light Gray")
+        self.selected_folder_to_save_output_file.place(x = 10, y = 290, width=300, height = 50)
+
+        save_folder = Path(autofit_folderpath)
+        save_folder = autofit_folderpath.absolute()
+        self.selected_folder_to_save_output_file.insert("end-1c", save_folder)
+
         self.enter_output_filename = tk.Label(self, text="Enter output filename", font=('Helvetica', 10), highlightbackground="black", highlightthickness=1)
-        self.enter_output_filename.place(x = 10, y = 250, width=300, height = 30)
+        self.enter_output_filename.place(x = 10, y = 345, width=300, height = 30)
         self.entered_output_filename = tk.Text(self, font=('Helvetica', 10), highlightbackground="black", highlightthickness=0, background="Light Gray")
-        self.entered_output_filename.place(x = 10, y = 290, width=300, height = 30)
+        self.entered_output_filename.place(x = 10, y = 380, width=300, height = 30)
         self.select_folder_to_save_tfit = tk.Button(self, text="Save Temperature Fit", font=('Helvetica', 10), command=self.save_file)
-        self.select_folder_to_save_tfit.place(x = 10, y = 325, width=300, height = 30)
+        self.select_folder_to_save_tfit.place(x = 10, y = 420, width=300, height = 30)
 
     # Create the handling for adding an spe file automatically when created in the folder
     #This is the event that watchdog is looking for.
@@ -520,7 +529,8 @@ class DataFileHandling(tk.Frame):
             self.plots.left_calibration_file = spe.SpeFile(left_calibration_file_location)
             self.plots.right_calibration_file = spe.SpeFile(right_calibration_file_location)
             self.plots.data_file = spe.SpeFile(r'{}'.format(event.src_path))
-            self.plots.update_graphs()      
+            
+            self.plots.update_graphs()
             self.save_file()
         else:
             print("Not an SPE File!")
@@ -536,7 +546,7 @@ class DataFileHandling(tk.Frame):
             self.my_event_handler = PatternMatchingEventHandler()
             self.my_event_handler.on_created = self.file_created
             self.my_observer = Observer()
-            self.my_observer.schedule(self.my_event_handler, self.folder_path, recursive=True)
+            self.my_observer.schedule(self.my_event_handler, self.folder_path, recursive=False)
 
             #Starts watchdog and calls for function to check
             self.my_observer.start()
@@ -566,8 +576,8 @@ class DataFileHandling(tk.Frame):
         }
 
         df = pd.DataFrame(all_data)
-        save_file_time = datetime.datetime.now().strftime('%Y%m%d-%H_%M_%S')
-        save_file_location = self.selected_folder_to_save_tfit.get("1.0", "end-1c") + "\\"       
+        save_file_time = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+        save_file_location = self.selected_folder_to_save_output_file.get("1.0", "end-1c") + "\\"       
         save_file_name = self.entered_output_filename.get("1.0", "end-1c")
 
         if save_file_name == "":
@@ -612,6 +622,12 @@ class DataFileHandling(tk.Frame):
             #print(open_file_name)
             self.selected_folder_to_save_tfit.delete("1.0",tk.END)
             self.selected_folder_to_save_tfit.insert(tk.END, self.open_folder_path)        
+
+        elif file_location_number == 3:
+            self.save_folder_path = filedialog.askdirectory()
+            #print(open_file_name)
+            self.selected_folder_to_save_output_file.delete("1.0",tk.END)
+            self.selected_folder_to_save_output_file.insert(tk.END, self.save_folder_path)
 
 class InitiateActonTfit(tk.Frame):
     #def __init__(self, x_position, y_position):
